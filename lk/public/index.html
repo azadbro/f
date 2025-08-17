@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRX Earn Bux</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src='//libtl.com/sdk.js' data-zone='9723717' data-sdk='show_9723717'></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-coins"></i> TRX Earn Bux</h1>
+                <div class="user-balance">
+                    <span id="userBalance">0.000</span> TRX
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-section="earn">
+                <i class="fas fa-play-circle"></i> Earn
+            </button>
+            <button class="nav-tab" data-section="refer">
+                <i class="fas fa-share-alt"></i> Refer
+            </button>
+            <button class="nav-tab" data-section="wallet">
+                <i class="fas fa-wallet"></i> Wallet
+            </button>
+            <button class="nav-tab" data-section="tasks">
+                <i class="fas fa-tasks"></i> Tasks
+            </button>
+            <button class="nav-tab" data-section="admin" id="adminTab" style="display: none;">
+                <i class="fas fa-cog"></i> Admin
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Earn Section -->
+            <section id="earn" class="content-section active">
+                <div class="earn-container">
+                    <div class="earn-card">
+                        <h2><i class="fas fa-play-circle"></i> Watch Ads & Earn TRX</h2>
+                        <div class="earn-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Ads Watched</span>
+                                <span class="stat-value" id="adsWatched">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Total Earned</span>
+                                <span class="stat-value" id="totalEarned">0.000 TRX</span>
+                            </div>
+                        </div>
+                        
+                        <div class="ad-section">
+                            <div class="cooldown-timer" id="cooldownTimer" style="display: none;">
+                                <i class="fas fa-clock"></i>
+                                <span id="timerText">30s</span>
+                            </div>
+                            
+                            <button class="watch-ad-btn" id="watchAdBtn">
+                                <i class="fas fa-play"></i>
+                                Watch Ad & Earn 0.005 TRX
+                            </button>
+                            
+                            <div class="reward-info">
+                                <p><i class="fas fa-info-circle"></i> Earn 0.005 TRX per ad</p>
+                                <p><i class="fas fa-clock"></i> 30-second cooldown between ads</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Refer Section -->
+            <section id="refer" class="content-section">
+                <div class="refer-container">
+                    <div class="refer-card">
+                        <h2><i class="fas fa-share-alt"></i> Refer Friends & Earn</h2>
+                        
+                        <div class="referral-stats">
+                            <div class="stat-grid">
+                                <div class="stat-card">
+                                    <i class="fas fa-users"></i>
+                                    <span class="stat-number" id="referralCount">0</span>
+                                    <span class="stat-label">Total Referrals</span>
+                                </div>
+                                <div class="stat-card">
+                                    <i class="fas fa-coins"></i>
+                                    <span class="stat-number" id="referralEarnings">0.000</span>
+                                    <span class="stat-label">TRX Earned</span>
+                                </div>
+                                <div class="stat-card">
+                                    <i class="fas fa-percentage"></i>
+                                    <span class="stat-number" id="lifetimeCommission">0.000</span>
+                                    <span class="stat-label">Lifetime Commission</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="referral-link-section">
+                            <h3>Your Referral Link</h3>
+                            <div class="link-container">
+                                <input type="text" id="referralLink" readonly>
+                                <button class="copy-btn" id="copyLinkBtn">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="share-buttons">
+                                <button class="share-btn telegram" onclick="shareToTelegram()">
+                                    <i class="fab fa-telegram"></i> Telegram
+                                </button>
+                                <button class="share-btn whatsapp" onclick="shareToWhatsApp()">
+                                    <i class="fab fa-whatsapp"></i> WhatsApp
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="referral-list">
+                            <h3>Your Referrals</h3>
+                            <div id="referralsList" class="referrals-list">
+                                <!-- Referrals will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Wallet Section -->
+            <section id="wallet" class="content-section">
+                <div class="wallet-container">
+                    <div class="wallet-card">
+                        <h2><i class="fas fa-wallet"></i> Wallet & Transactions</h2>
+                        
+                        <div class="balance-overview">
+                            <div class="balance-card">
+                                <h3>Current Balance</h3>
+                                <div class="balance-amount" id="walletBalance">0.000 TRX</div>
+                            </div>
+                        </div>
+
+                        <div class="earnings-breakdown">
+                            <h3>Earnings Breakdown</h3>
+                            <div class="breakdown-grid">
+                                <div class="breakdown-item">
+                                    <span class="label">From Ads:</span>
+                                    <span class="value" id="adsEarnings">0.000 TRX</span>
+                                </div>
+                                <div class="breakdown-item">
+                                    <span class="label">From Referrals:</span>
+                                    <span class="value" id="referralsEarnings">0.000 TRX</span>
+                                </div>
+                                <div class="breakdown-item">
+                                    <span class="label">From Tasks:</span>
+                                    <span class="value" id="tasksEarnings">0.000 TRX</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="withdrawal-section">
+                            <h3>Withdraw Funds</h3>
+                            <form id="withdrawalForm" class="withdrawal-form">
+                                <div class="form-group">
+                                    <label for="withdrawalAmount">Amount (TRX)</label>
+                                    <input type="number" id="withdrawalAmount" min="1" step="0.001" required>
+                                    <small>Minimum: 1 TRX</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="binanceUid">Binance UID</label>
+                                    <input type="text" id="binanceUid" required>
+                                </div>
+                                <button type="submit" class="withdraw-btn">
+                                    <i class="fas fa-arrow-up"></i> Request Withdrawal
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="transactions-section">
+                            <h3>Transaction History</h3>
+                            <div id="transactionsList" class="transactions-list">
+                                <!-- Transactions will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tasks Section -->
+            <section id="tasks" class="content-section">
+                <div class="tasks-container">
+                    <div class="tasks-card">
+                        <h2><i class="fas fa-tasks"></i> Complete Tasks & Earn</h2>
+                        
+                        <div class="tasks-list" id="tasksList">
+                            <!-- Tasks will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Admin Section -->
+            <section id="admin" class="content-section">
+                <div class="admin-container">
+                    <div class="admin-card">
+                        <h2><i class="fas fa-cog"></i> Admin Panel</h2>
+                        
+                        <div class="admin-tabs">
+                            <button class="admin-tab active" data-admin-section="users">
+                                <i class="fas fa-users"></i> Users
+                            </button>
+                            <button class="admin-tab" data-admin-section="withdrawals">
+                                <i class="fas fa-money-bill-wave"></i> Withdrawals
+                            </button>
+                            <button class="admin-tab" data-admin-section="tasks">
+                                <i class="fas fa-tasks"></i> Manage Tasks
+                            </button>
+                        </div>
+
+                        <!-- Users Admin Section -->
+                        <div id="adminUsers" class="admin-section active">
+                            <h3>User Management</h3>
+                            <div class="search-box">
+                                <input type="text" id="userSearch" placeholder="Search users...">
+                            </div>
+                            <div id="adminUsersList" class="admin-list">
+                                <!-- Users will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Withdrawals Admin Section -->
+                        <div id="adminWithdrawals" class="admin-section">
+                            <h3>Withdrawal Requests</h3>
+                            <div id="adminWithdrawalsList" class="admin-list">
+                                <!-- Withdrawals will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Tasks Admin Section -->
+                        <div id="adminTasks" class="admin-section">
+                            <h3>Task Management</h3>
+                            <button class="add-task-btn" id="addTaskBtn">
+                                <i class="fas fa-plus"></i> Add New Task
+                            </button>
+                            <div id="adminTasksList" class="admin-list">
+                                <!-- Admin tasks will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add/Edit Task</h2>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Task Title</label>
+                    <input type="text" id="taskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskLink">Task Link</label>
+                    <input type="url" id="taskLink" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskReward">TRX Reward</label>
+                    <input type="number" id="taskReward" min="0.001" step="0.001" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskCategory">Category</label>
+                    <select id="taskCategory" required>
+                        <option value="telegram">Telegram Channel</option>
+                        <option value="bot">Telegram Bot</option>
+                        <option value="website">Website Visit</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="verificationType">Verification Type</label>
+                    <select id="verificationType" required>
+                        <option value="auto">Auto Verification</option>
+                        <option value="manual">Manual Approval</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">Save Task</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
