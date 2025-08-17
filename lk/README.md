@@ -104,7 +104,7 @@ BOT_USERNAME=your_bot_username
 MONETAG_ZONE_ID=your_zone_id
 
 # App Configuration
-PORT=3000
+PORT=8080
 NODE_ENV=production
 ```
 
@@ -142,8 +142,6 @@ NODE_ENV=production
 ```bash
 # Start development server
 npm run dev
-
-# The app will be available at http://localhost:3000
 ```
 
 ### Production
