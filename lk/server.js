@@ -17,19 +17,39 @@ app.use(express.static('public'));
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID,
-  measurementId: process.env.FIREBASE_MEASUREMENT_ID,
-  databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}-default-rtdb.firebaseio.com`
-};
+    apiKey: "AIzaSyBfiVtfLXiFOAmV5YJws5WswYqpDgxodXQ",
+    authDomain: "project1-f966d.firebaseapp.com",
+    databaseURL: "https://project1-f966d-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "project1-f966d",
+    storageBucket: "project1-f966d.firebasestorage.app",
+    messagingSenderId: "987134748696",
+    appId: "1:987134748696:web:7622359ca57ebd69337b6d",
+    measurementId: "G-1SFXDRD9W9"
+  };
 
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 const database = getDatabase(firebaseApp);
+
+// Test Firebase connection
+console.log('Firebase initialized with config:', {
+  projectId: firebaseConfig.projectId,
+  databaseURL: firebaseConfig.databaseURL,
+  authDomain: firebaseConfig.authDomain
+});
+
+// Test database connection
+const testRef = ref(database, 'test');
+set(testRef, { timestamp: Date.now() })
+  .then(() => {
+    console.log('✅ Firebase database connection successful');
+    // Clean up test data
+    return set(testRef, null);
+  })
+  .catch((error) => {
+    console.error('❌ Firebase database connection failed:', error);
+    console.error('Please check your Firebase configuration and database rules');
+  });
 
 // Telegram Web App validation
 function validateTelegramWebApp(initData) {
@@ -51,16 +71,32 @@ function validateTelegramWebApp(initData) {
 
 // Routes
 
+// Test endpoint
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    message: 'Server is running!',
+    timestamp: new Date().toISOString(),
+    firebase: {
+      projectId: firebaseConfig.projectId,
+      databaseURL: firebaseConfig.databaseURL
+    }
+  });
+});
+
 // Get user data
 app.get('/api/user/:telegramId', async (req, res) => {
   try {
     const { telegramId } = req.params;
+    console.log('Fetching user data for Telegram ID:', telegramId);
+    
     const userRef = ref(database, `users/${telegramId}`);
     const snapshot = await get(userRef);
     
     if (snapshot.exists()) {
+      console.log('User found:', snapshot.val());
       res.json(snapshot.val());
     } else {
+      console.log('Creating new user for Telegram ID:', telegramId);
       // Create new user if doesn't exist
       const newUser = {
         telegramId: parseInt(telegramId),
@@ -79,11 +115,21 @@ app.get('/api/user/:telegramId', async (req, res) => {
       };
       
       await set(userRef, newUser);
+      console.log('New user created successfully');
       res.json(newUser);
     }
   } catch (error) {
-    console.error('Error getting user:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error getting/creating user:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    });
+    res.status(500).json({ 
+      error: 'Internal server error',
+      details: error.message,
+      code: error.code
+    });
   }
 });
 
